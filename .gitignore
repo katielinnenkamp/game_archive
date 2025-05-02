@@ -1,0 +1,6 @@
+# Ignore compiled files and debug folders
+*.out
+*.exe
+*.o
+*.dSYM/
+rock_paper_scissors
