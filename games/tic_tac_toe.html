@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>❌⭕ Tic Tac Toe</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    table {
+      margin: auto;
+      margin-top: 2rem;
+    }
+    td {
+      width: 60px;
+      height: 60px;
+      font-size: 2rem;
+      text-align: center;
+      border: 2px solid black;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>❌⭕ Tic Tac Toe</h2>
+  <table>
+    <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
+    <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
+    <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
+  </table>
+  <p id="msg">It's X's turn</p>
+
+  <script>
+    let turn = "X";
+    let gameOver = false;
+
+    function mark(cell) {
+      if (cell.textContent === "" && !gameOver) {
+        cell.textContent = turn;
+        if (checkWin()) {
+          document.getElementById("msg").textContent = `${turn} wins! 🎉`;
+          gameOver = true;
+          confetti(); // fire confetti when someone wins!
+        } else if (checkTie()) {
+          document.getElementById("msg").textContent = "It's a tie! 😬";
+          gameOver = true;
+        } else {
+          turn = turn === "X" ? "O" : "X";
+          document.getElementById("msg").textContent = `It's ${turn}'s turn`;
+        }
+      }
+    }
+
+    function checkWin() {
+      const cells = Array.from(document.querySelectorAll("td")).map(c => c.textContent);
+      const lines = [
+        [0,1,2],[3,4,5],[6,7,8], // rows
+        [0,3,6],[1,4,7],[2,5,8], // cols
+        [0,4,8],[2,4,6]          // diagonals
+      ];
+      return lines.some(([a,b,c]) => cells[a] && cells[a] === cells[b] && cells[a] === cells[c]);
+    }
+
+    function checkTie() {
+      return Array.from(document.querySelectorAll("td")).every(c => c.textContent !== "");
+    }
+  </script>
+
+  <!-- 🎉 Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    confetti({
+      particleCount: 120,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
+  </script>
+</body>
+</html>

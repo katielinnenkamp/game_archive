@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎮 Games Archive</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🎮 Welcome to the Games Archive!</h1>
+  <p>Click a game to start playing. Have fun!</p>
+
+  <div class="game-links">
+    <a href="games/flip_a_coin.html">🪙 Flip a Coin</a>
+    <a href="games/rock_paper_scissors.html">✊ Rock Paper Scissors</a>
+    <a href="games/roll_the_dice.html">🎲 Roll the Dice</a>
+    <a href="games/tic_tac_toe.html">❌⭕ Tic Tac Toe</a>
+  </div>
+
+  <footer>Made by Katie and Saghar 👯‍♀️ </footer>
+
+  <!-- 🎉 Confetti Script -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    confetti({
+      particleCount: 200,
+      spread: 100,
+      origin: { y: 0.6 },
+    });
+  </script>
+</body>
+</html>

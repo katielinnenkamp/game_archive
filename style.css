@@ -1,0 +1,68 @@
+body {
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: linear-gradient(-45deg, #fceabb, #f8b500, #ff9a9e, #fad0c4);
+    background-size: 400% 400%;
+    animation: gradientMove 15s ease infinite;
+    color: #333;
+    text-align: center;
+    padding: 3rem;
+    overflow-x: hidden;
+  }
+  
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  h1 {
+    font-size: 3rem;
+    color: white;
+    text-shadow: 2px 2px 5px #000;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .game-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .game-links a {
+    display: inline-block;
+    width: 220px;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.3s, background-color 0.3s;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  .game-links a:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000;
+    transform: scale(1.05);
+  }
+  
+  footer {
+    margin-top: 4rem;
+    color: white;
+    font-size: 0.9rem;
+    text-shadow: 1px 1px #000;
+  }

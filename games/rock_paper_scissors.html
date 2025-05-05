@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rock Paper Scissors</title>
+    <link rel="stylesheet" href="../style.css" />
+  </head>
+  <body>
+    <h2>✊ Rock Paper Scissors</h2>
+    <p>Choose:</p>
+    <button onclick="play(0)">🪨 Rock</button>
+    <button onclick="play(1)">📄 Paper</button>
+    <button onclick="play(2)">✂️ Scissors</button>
+    <p id="result"></p>
+
+    <script>
+      const options = ["Rock", "Paper", "Scissors"];
+
+      function play(userChoice) {
+        const computerChoice = Math.floor(Math.random() * 3);
+        let resultText = `You chose: ${options[userChoice]}<br>Computer chose: ${options[computerChoice]}<br>`;
+
+        if (userChoice === computerChoice) {
+          resultText += "🤝 It's a tie! Stop copying me!";
+        } else if (
+          (userChoice === 0 && computerChoice === 2) ||
+          (userChoice === 1 && computerChoice === 0) ||
+          (userChoice === 2 && computerChoice === 1)
+        ) {
+          resultText += "🎉 You win! Congrats... Did you cheat? Be honest! 🤨";
+        } else {
+          resultText += "💀 You lose. That was embarrassing. I hope no one saw that.";
+        }
+
+        document.getElementById("result").innerHTML = resultText;
+      }
+    </script>
+
+    <!-- 🎉 Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+      confetti({
+        particleCount: 150,
+        spread: 90,
+        origin: { y: 0.6 },
+      });
+    </script>
+  </body>
+</html>
