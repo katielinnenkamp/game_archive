@@ -1,68 +1,119 @@
 body {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: linear-gradient(-45deg, #fceabb, #f8b500, #ff9a9e, #fad0c4);
-    background-size: 400% 400%;
-    animation: gradientMove 15s ease infinite;
-    color: #333;
-    text-align: center;
-    padding: 3rem;
-    overflow-x: hidden;
-  }
+  margin: 0; /* remove space from around the page */
+
+  font-family: 'Press Start 2P', cursive; /* this font looks like old game style :) */
+
   
-  @keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+    background: repeating-linear-gradient(
+      45deg,
+      #e0e0e0,
+      #e0e0e0 10px,
+      #d0d0d0 10px,
+      #d0d0d0 20px
+    );
   
-  h1 {
-    font-size: 3rem;
-    color: white;
-    text-shadow: 2px 2px 5px #000;
-    margin-bottom: 1rem;
-  }
+  display: flex; /* this activates the column layout */
+
+  flex-direction: column;
+
   
-  p {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-  }
+
+  overflow-x: hidden; /* hide stuff if it go outside screen I guess */
+
+  min-height: 60vh; /* make it fill the whole screen height */
+
+  position: relative; /* so I can use position absolute inside maybe */
+
+  text-align: center; /* center all the texts */
+}
+
+h1, p, footer {
+  z-index: 2; /* bring text in front of stuff like bubbles */
+
+  position: relative; /* needed for z-index to work */
+}
+
+.game-links {
+  position: relative; /* so bubbles inside can move with absolute */
+
+  width: 100%; /* full page width */
+
+  min-height: 80vh; /* full page height again */
+
+  overflow-x: hidden; /* don’t show bubble if it go out */
+
+  z-index: 1; /* behind the text things */
+
+}
+
+
+/* bubble style */
+.game-links a {
+  position: absolute; /* so we can move them anywhere in the box */
+
+  display: flex; /* makes text inside center */
+  flex: 1;
+
+  align-items: center; /* vertical center I think */
+
+  justify-content: center; /* horizontal center */
+
+  width: 160px; /* bubble size */
+
+  height: 80px; /* bubble size again */
+
+  border-radius: 50%; /* make it round! */
   
-  .game-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2rem;
-  }
+
+  color: #000000;             /* black text for high contrast */
+
+  background-color: #a8b888; /* soft, muted green *//* bubble color  */
+
+  color: rgb(255, 255, 255); /*  text color  */
+
+  text-decoration: none; /* remove underline */
+
+  font-size: 0.75rem; /* small text, fits better */
+
+  border: 3px solid #333; /* black border around bubble */
+
+  box-shadow: 0 4px 0 #999;   /* gives that chunky button feel */
+
+  font-family: 'Press Start 2P', monospace;
+
+
+  animation: float 7s ease-in-out infinite; /* make it floaty looking */
   
-  .game-links a {
-    display: inline-block;
-    width: 220px;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    text-decoration: none;
-    border-radius: 15px;
-    font-size: 1.2rem;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    animation: float 3s ease-in-out infinite;
-    transition: transform 0.3s, background-color 0.3s;
-  }
+  pointer-events: auto; /* just in case, allow click */
+}
+
+/* floating movement */
+@keyframes float {
+  0%   { transform: translate(-50%, -50%) translate(0, 0); }
+  25%  { transform: translate(-50%, -50%) translate(10px, -15px); }
+  50%  { transform: translate(-50%, -50%) translate(-15px, 10px); }
+  75%  { transform: translate(-50%, -50%) translate(10px, 5px); }
+  100% { transform: translate(-50%, -50%) translate(0, 0); }
+}
+
+footer {
   
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-  }
-  
-  .game-links a:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #000;
-    transform: scale(1.05);
-  }
-  
-  footer {
-    margin-top: 4rem;
-    color: white;
-    font-size: 0.9rem;
-    text-shadow: 1px 1px #000;
-  }
+
+  padding: 1rem 0; /* add space around the text so it’s not squished */
+
+  font-size: 0.75rem; /* small, game-style text */
+
+  font-family: 'Press Start 2P', monospace; /* keep that retro look */
+
+  color: #000; /* darker so it's visible on light background */
+
+  text-shadow: 1px 1px #fff; /* soft glow so it feels like pixel screens */
+
+  background-color: #e0e0e0; /* make the footer stand out a bit from the page */
+
+  width: 100%; /* stretch the footer across the whole bottom */
+
+  position: relative; /* keeps it flowing below the game bubbles */
+
+  z-index: 3; /* make sure it sits above background stuff */
+}
