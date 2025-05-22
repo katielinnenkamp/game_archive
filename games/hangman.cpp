@@ -8,10 +8,10 @@ int main() {
     string word;
     string guessedWord;
     char guess;
-    int attempts = 6;
+    int attempts = 10;
 
     cout << "=== Hangman Game 🎮 ===\n";
-    cout << "Enter a word for the other player to guess: ";
+    cout << "Player 1 Enter a word: ";
     cin >> word;
 
     // Initialize guessedWord with underscores
@@ -30,6 +30,7 @@ int main() {
             if (word[i] == guess) {
                 guessedWord[i] = guess;
                 correctGuess = true;
+                cout << "Correct guess! The letter '" << guess << "' is in the word.\n";
             }
         }
 

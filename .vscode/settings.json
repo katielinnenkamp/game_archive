@@ -1,0 +1,6 @@
+{
+  "C_Cpp.default.configurationProvider": "ms-vscode.cpptools",
+  "C_Cpp.default.intelliSenseMode": "macos-clang-arm64",
+  "C_Cpp.default.configuration": "Mac",
+  "C_Cpp.default.compilerPath": "/usr/bin/clang++"
+}
