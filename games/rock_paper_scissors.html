@@ -5,8 +5,9 @@
     <title>Rock Paper Scissors</title>
     <link rel="stylesheet" href="../style.css" />
   </head>
+  <body class="center-screen"></body>
   <body>
-    <h2>✊ Rock Paper Scissors</h2>
+    <h2>✊ Rock Paper Scissors ✊</h2>
     <p>Choose:</p>
     <button onclick="play(0)">🪨 Rock</button>
     <button onclick="play(1)">📄 Paper</button>
@@ -33,17 +34,23 @@
         }
 
         document.getElementById("result").innerHTML = resultText;
+        if (resultText.includes("win")) {
+          confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.6 },
+          });
+        } else if (resultText.includes("tie")) {
+          confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.6 },
+          });
+        }
       }
     </script>
 
     <!-- 🎉 Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      confetti({
-        particleCount: 150,
-        spread: 90,
-        origin: { y: 0.6 },
-      });
-    </script>
   </body>
 </html>

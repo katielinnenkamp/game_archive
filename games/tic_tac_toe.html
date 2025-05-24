@@ -2,12 +2,28 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>❌⭕ Tic Tac Toe</title>
+  <title>Tic Tac Toe</title>
   <link rel="stylesheet" href="../style.css" />
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Press Start 2P', monospace;
+      background-color: #f0f0f0;
+    }
+
+    .center-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
     table {
-      margin: auto;
       margin-top: 2rem;
+      border-collapse: collapse;
     }
     td {
       width: 60px;
@@ -17,17 +33,37 @@
       border: 2px solid black;
       cursor: pointer;
     }
+    #msg {
+      margin-top: 1rem;
+      font-size: 1.5rem;
+    }
+    #restart {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #restart:hover {
+      background-color: rgba(0, 0, 0, 0.85);
+    }
   </style>
 </head>
 <body>
-  <h2>❌⭕ Tic Tac Toe</h2>
-  <table>
-    <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
-    <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
-    <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
-  </table>
-  <p id="msg">It's X's turn</p>
-
+  <div class="center-screen">
+    <h2>❌⭕ Tic Tac Toe ⭕❌</h2>
+    <table>
+      <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
+      <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
+      <tr><td onclick="mark(this)"></td><td onclick="mark(this)"></td><td onclick="mark(this)"></td></tr>
+    </table>
+    <p id="msg">It's X's turn</p>
+    <button id="restart" onclick="restartGame()">Play Again</button>
+  </div>
   <script>
     let turn = "X";
     let gameOver = false;
@@ -38,10 +74,16 @@
         if (checkWin()) {
           document.getElementById("msg").textContent = `${turn} wins! 🎉`;
           gameOver = true;
-          confetti(); // fire confetti when someone wins!
+          document.getElementById("restart").style.display = "inline-block";
+          confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.6 },
+          }); // fire confetti when someone wins!
         } else if (checkTie()) {
           document.getElementById("msg").textContent = "It's a tie! 😬";
           gameOver = true;
+          document.getElementById("restart").style.display = "inline-block";
         } else {
           turn = turn === "X" ? "O" : "X";
           document.getElementById("msg").textContent = `It's ${turn}'s turn`;
@@ -62,16 +104,17 @@
     function checkTie() {
       return Array.from(document.querySelectorAll("td")).every(c => c.textContent !== "");
     }
+
+    function restartGame() {
+      document.querySelectorAll("td").forEach(cell => cell.textContent = "");
+      document.getElementById("msg").textContent = "It's X's turn";
+      document.getElementById("restart").style.display = "none";
+      turn = "X";
+      gameOver = false;
+    }
   </script>
 
   <!-- 🎉 Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-  <script>
-    confetti({
-      particleCount: 120,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-  </script>
 </body>
 </html>

@@ -2,130 +2,177 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>🪄 Hangman</title>
+    <title>Hangman</title>
     <link rel="stylesheet" href="../style.css" />
     <style>
-        body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        text-align: center;
-        }
-        h2 {
-        color: #333;
-        }
-        .word {
-        font-size: 2rem;
-        letter-spacing: 1rem;
-        margin: 1rem 0;
-        }
-        .wrong-letters {
-        color: red;
-        }
-        button {
-        font-size: 1.2rem;
-        padding: 0.8rem 1.2rem;
-        border-radius: 12px;
-        border: none;
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        cursor: pointer;
-        }
-        button:hover {
-        background-color: rgba(0, 0, 0, 0.85);
-        }
-        #result {
-        font-size: 1.5rem;
-        margin-top: 1rem;
-        }
-    </style>
+      .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+
+    .visible {
+      display: flex;
+    }
+
+    #hangmanCanvas {
+      margin: 1rem 0;
+      border: none;
+      background: transparent;
+    }
+
+    #word-display {
+      font-size: 1.5rem;
+      letter-spacing: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    #wrong-letters {
+      color: red;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .keyboard {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 320px;
+    }
+
+    .keyboard button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin: 0.2rem;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .keyboard button.used {
+      background-color: #fdd;
+      color: red;
+      text-decoration: line-through;
+    }
+
+    #input-word {
+      padding: 10px;
+      font-family: 'Press Start 2P', monospace;;
+      font-size: 14px;
+      width: 220px;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    #end-message {
+      font-size: 1rem;
+      margin: 1.5rem;
+    }
+  </style>
 </head>
 <body>
-  <h2>🪄 Hangman</h2>
 
-  <div id="mode-selector">
-    <button onclick="startGame('single')">1 Player</button>
-    <button onclick="document.getElementById('word-setup').style.display = 'block';">2 Player</button>
+  <!-- Start Screen -->
+  <div id="start-screen" class="screen visible">
+    <h2>☠️ Hangman ☠️</h2>
+    <button onclick="startSinglePlayer()">1 Player</button>
+    <button onclick="showScreen('word-input-screen')">2 Player</button>
   </div>
 
-  <div id="word-setup" style="display:none;">
-    <p>Player 1 Enter a Word:</p>
-    <input type="text" id="input-word" />
-    <button onclick="setWord()">Set Word</button>
+  <!-- Word Entry (2P Mode) -->
+  <div id="word-input-screen" class="screen">
+    <h2>Enter a Word</h2>
+    <input type="text" id="input-word" maxlength="20" />
+    <button onclick="setCustomWord()">Set Word</button>
   </div>
 
-  <canvas id="hangmanCanvas" width="200" height="200"></canvas>
-  <div class="word" id="word"></div>
-  <p>Wrong Letters: <span id="wrong-letters" class="wrong-letters"></span></p>
-  <p>Guess a letter:</p>
-  <input type="text" id="letter-input" maxlength="1" />
-  <button id="guess-button" onclick="guessLetter()">Guess</button>
-  <p id="result"></p>
-  <button id="restart-button" onclick="location.reload()" style="display:none;">Play Again / Change Players</button>
+  <!-- Game Screen -->
+  <div id="game-screen" class="screen">
+    <canvas id="hangmanCanvas" width="150" height="150"></canvas>
+    <div id="word-display">_ _ _</div>
+    <div id="wrong-letters"></div>
+    <div id="keyboard" class="keyboard"></div>
+  </div>
+
+  <!-- End Screen -->
+  <div id="end-screen" class="screen">
+    <div id="end-message"></div>
+    <button onclick="location.reload()">Play Again / Change Players</button>
+  </div>
+  
 
   <script>
+    const wordList = ["JAVASCRIPT", "PYTHON", "HANGMAN", "COMPUTER", "BYCICLE", "CODING", "SEESAW", "NOTEBOOK", "ELECTRICITY", "ROBOT", "IMAGINATION", "AUTUMN", "BIRTHDAY", "DREAM", "CLASSIFICATION", "WALLPAPER", "NATIONALITY", "GLOBE", "WATER", "MOUNTAIN", "SANDWICH", "TELEPHONE", "MAGNETIC", "EXPERIMENT", "FESTIVAL", "HORIZON", "KEYBOARD", "LAPTOP", "MICROWAVE", "NEEDLE", "ORCHESTRA", "PRACTICE", "QUIZ", "RHYTHM", "SPECTRUM", "TELEVISION", "UNIVERSE", "VIRTUAL", "WISDOM"];
     let secretWord = "";
     let guessedLetters = [];
     let wrongLetters = [];
     const maxMistakes = 10;
-    const wordList = ["JAVASCRIPT", "PYTHON", "HANGMAN", "COMPUTER", "DEVELOPER"];
+
     const canvas = document.getElementById("hangmanCanvas");
     const ctx = canvas.getContext("2d");
 
-    function drawHangman(stage) {
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "#000";
-      switch (stage) {
-        case 1: ctx.beginPath(); ctx.moveTo(10, 190); ctx.lineTo(190, 190); ctx.stroke(); break;
-        case 2: ctx.beginPath(); ctx.moveTo(50, 190); ctx.lineTo(50, 10); ctx.stroke(); break;
-        case 3: ctx.beginPath(); ctx.moveTo(50, 10); ctx.lineTo(130, 10); ctx.stroke(); break;
-        case 4: ctx.beginPath(); ctx.moveTo(130, 10); ctx.lineTo(130, 30); ctx.stroke(); break;
-        case 5: ctx.beginPath(); ctx.arc(130, 45, 15, 0, Math.PI * 2); ctx.stroke(); break;
-        case 6: ctx.beginPath(); ctx.moveTo(130, 60); ctx.lineTo(130, 110); ctx.stroke(); break;
-        case 7: ctx.beginPath(); ctx.moveTo(130, 70); ctx.lineTo(110, 90); ctx.stroke(); break;
-        case 8: ctx.beginPath(); ctx.moveTo(130, 70); ctx.lineTo(150, 90); ctx.stroke(); break;
-        case 9: ctx.beginPath(); ctx.moveTo(130, 110); ctx.lineTo(110, 140); ctx.stroke(); break;
-        case 10: ctx.beginPath(); ctx.moveTo(130, 110); ctx.lineTo(150, 140); ctx.stroke(); break;
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(div => div.classList.remove("visible"));
+      document.getElementById(id).classList.add("visible");
+    }
+
+    function startSinglePlayer() {
+      secretWord = wordList[Math.floor(Math.random() * wordList.length)];
+      startGame();
+    }
+
+    function setCustomWord() {
+      const input = document.getElementById("input-word").value.trim();
+      if (input && /^[a-zA-Z]+$/.test(input)) {
+        secretWord = input.toUpperCase();
+        startGame();
       }
     }
 
-    function setWord() {
-      secretWord = document.getElementById("input-word").value.toUpperCase();
-      document.getElementById("word-setup").style.display = "none";
-      document.getElementById("mode-selector").style.display = "none";
-      startGameplay();
-    }
-
-    function startGame(mode) {
-      if (mode === 'single') {
-        secretWord = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
-        document.getElementById("mode-selector").style.display = "none";
-        startGameplay();
-      }
-    }
-
-    function startGameplay() {
+    function startGame() {
       guessedLetters = [];
       wrongLetters = [];
-      document.getElementById("result").innerText = "";
-      document.getElementById("restart-button").style.display = "none";
-      updateDisplay();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      showScreen("game-screen");
+      drawHangman(0);
+      updateWordDisplay();
+      updateWrongLetters();
+      createKeyboard();
     }
 
-    function updateDisplay() {
-      const wordDisplay = secretWord
+    function updateWordDisplay() {
+      const display = secretWord
         .split("")
         .map(letter => guessedLetters.includes(letter) ? letter : "_")
         .join(" ");
-      document.getElementById("word").innerText = wordDisplay;
-      document.getElementById("wrong-letters").innerText = wrongLetters.join(" ");
+      document.getElementById("word-display").innerText = display;
     }
 
-    function guessLetter() {
-      const input = document.getElementById("letter-input");
-      const letter = input.value.toUpperCase();
-      input.value = "";
-      if (!letter.match(/^[A-Z]$/) || guessedLetters.includes(letter) || wrongLetters.includes(letter)) return;
+    function updateWrongLetters() {
+      document.getElementById("wrong-letters").innerText =
+        "Wrong: " + wrongLetters.join(" ");
+    }
+
+    function createKeyboard() {
+      const keyboardDiv = document.getElementById("keyboard");
+      keyboardDiv.innerHTML = "";
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      for (let letter of letters) {
+        const btn = document.createElement("button");
+        btn.textContent = letter;
+        btn.id = `key-${letter}`;
+        btn.onclick = () => handleGuess(letter);
+        keyboardDiv.appendChild(btn);
+      }
+    }
+
+    function handleGuess(letter) {
+      if (guessedLetters.includes(letter) || wrongLetters.includes(letter)) return;
+
+      const btn = document.getElementById(`key-${letter}`);
+      if (btn) btn.classList.add("used");
 
       if (secretWord.includes(letter)) {
         guessedLetters.push(letter);
@@ -133,28 +180,51 @@
         wrongLetters.push(letter);
         drawHangman(wrongLetters.length);
       }
-      updateDisplay();
-      checkResult();
+
+      updateWordDisplay();
+      updateWrongLetters();
+      checkGameStatus();
     }
 
-    function checkResult() {
-      const allGuessed = secretWord.split("").every(l => guessedLetters.includes(l));
-      const inputBox = document.getElementById("letter-input");
-      const guessButton = document.getElementById("guess-button");
-
-      if (allGuessed) {
-        document.getElementById("result").innerText = "🎉 You guessed it!";
-        inputBox.disabled = true;
-        guessButton.disabled = true;
-        document.getElementById("restart-button").style.display = "inline-block";
+    function checkGameStatus() {
+      const won = secretWord.split("").every(letter => guessedLetters.includes(letter));
+      if (won) {
+        showEndScreen("🎉 You guessed it!");
       } else if (wrongLetters.length >= maxMistakes) {
-        document.getElementById("result").innerText = `😢 Game Over. The word was: ${secretWord}`;
-        inputBox.disabled = true;
-        guessButton.disabled = true;
-        document.getElementById("restart-button").style.display = "inline-block";
+        showEndScreen(`💀 Game Over. The word was: ${secretWord}`);
+      }
+    }
+
+    function showEndScreen(message) {
+      document.getElementById("end-message").innerText = message;
+      showScreen("end-screen");
+      if (message.includes("guessed")) {
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.6 },
+        });
+      }
+    }
+
+    function drawHangman(stage) {
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = "#000";
+      switch (stage) {
+        case 1: ctx.beginPath(); ctx.moveTo(10, 140); ctx.lineTo(140, 140); ctx.stroke(); break;
+        case 2: ctx.beginPath(); ctx.moveTo(40, 140); ctx.lineTo(40, 10); ctx.stroke(); break;
+        case 3: ctx.beginPath(); ctx.moveTo(40, 10); ctx.lineTo(110, 10); ctx.stroke(); break;
+        case 4: ctx.beginPath(); ctx.moveTo(110, 10); ctx.lineTo(110, 30); ctx.stroke(); break;
+        case 5: ctx.beginPath(); ctx.arc(110, 45, 12, 0, Math.PI * 2); ctx.stroke(); break;
+        case 6: ctx.beginPath(); ctx.moveTo(110, 57); ctx.lineTo(110, 100); ctx.stroke(); break;
+        case 7: ctx.beginPath(); ctx.moveTo(110, 70); ctx.lineTo(90, 85); ctx.stroke(); break;
+        case 8: ctx.beginPath(); ctx.moveTo(110, 70); ctx.lineTo(130, 85); ctx.stroke(); break;
+        case 9: ctx.beginPath(); ctx.moveTo(110, 100); ctx.lineTo(95, 125); ctx.stroke(); break;
+        case 10: ctx.beginPath(); ctx.moveTo(110, 100); ctx.lineTo(125, 125); ctx.stroke(); break;
       }
     }
   </script>
+  <!-- 🎉 Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 </body>
 </html>
-        
