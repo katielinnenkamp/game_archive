@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 body {
   margin: 0; /* remove space from around the page */
   padding: 0;
@@ -42,7 +43,6 @@ h1, p, footer {
 
 }
 
-
 /* bubble style */
 .game-links a {
   position: absolute; /* so we can move them anywhere in the box */
@@ -63,9 +63,9 @@ h1, p, footer {
 
   color: #000000;             /* black text for high contrast */
 
-  background-color: #a8b888; /* soft, muted green *//* bubble color  */
+  background-color: #97ff9ecc; /* soft, muted green *//* bubble color  */
 
-  color: rgb(255, 255, 255); /*  text color  */
+  color: rgb(0, 0, 0); /*  text color  */
 
   text-decoration: none; /* remove underline */
 
@@ -81,6 +81,10 @@ h1, p, footer {
   animation: float 7s ease-in-out infinite; /* make it floaty looking */
   
   pointer-events: auto; /* just in case, allow click */
+}
+
+.game-links a:hover {
+  background-color: #97ff9e80;
 }
 
 /* floating movement */
@@ -119,15 +123,15 @@ button {
   padding: 0.8rem 1.2rem;
   border-radius: 12px;
   border: none;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
+  background-color: #97ff9ecc;
+  color: #000000;
   cursor: pointer;
   margin: 0.5rem;
   font-family: 'Press Start 2P', monospace;
 }
 
 button:hover {
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: #97ff9e80;
 }
 
 #result {
@@ -142,4 +146,21 @@ button:hover {
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.back-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  background-color: #000000c6;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #ffffff;
+}
+
+.back-home:hover {
+  background-color: #00000083;
 }

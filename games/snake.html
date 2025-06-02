@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🐍 Snake — The Gamer’s Vault</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #222;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #000000;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #0f0;
+      margin-bottom: 1.5rem;
+    }
+
+    .game-container {
+      position: relative;
+      width: 80vw;
+      min-width: 600px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem;
+      border: 4px solid #444;
+      background-color: #111;
+      box-shadow: none;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16/9;
+      border: 2px solid #0a0;
+      background-color: #000;
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    #score {
+      font-size: 1rem;
+      margin-top: 0.5rem;
+      color: #0f0;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      border: 2px solid #0a0;
+      padding: 10px 20px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.9rem;
+      margin-top: 1.5rem;
+      cursor: pointer;
+      box-shadow: none;
+      outline: none;
+    }
+
+    button:hover {
+      background-color: #0a0;
+    }
+
+    #start-screen {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: auto;
+      height: auto;
+      background-color: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      box-shadow: none;
+      filter: none;
+    }
+
+    #play-again {
+      display: none;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <a href="../index.html" class="back-home">⬅ Go Back Home</a>
+  <h1>🐍 Classic Snake Game 🐍</h1>
+  <p class="subtitle">Use arrow keys to move. Don't crash!</p>
+
+  <div class="game-container">
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+
+    <div id="start-screen">
+      <button id="start-button">START GAME</button>
+    </div>
+
+    <div id="score">Score: 0</div>
+  </div>
+
+  <button id="play-again">PLAY AGAIN</button>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const startScreen = document.getElementById("start-screen");
+    const startButton = document.getElementById("start-button");
+    const playAgainButton = document.getElementById("play-again");
+
+    const gridSize = 20;
+    const tileCountX = canvas.width / gridSize;
+    const tileCountY = canvas.height / gridSize;
+
+    let x = 4, y = 4;
+    let fruitX = Math.floor(Math.random() * tileCountX);
+    let fruitY = Math.floor(Math.random() * tileCountY);
+    let velocityX = 1;
+    let velocityY = 0;
+    let tail = [];
+    let tailLength = 3;
+    let score = 0;
+    let gameOver = false;
+    let gameStarted = false;
+
+    function initGame() {
+      x = 4;
+      y = 4;
+      fruitX = Math.floor(Math.random() * tileCountX);
+      fruitY = Math.floor(Math.random() * tileCountY);
+      velocityX = 1;
+      velocityY = 0;
+      tail = [];
+      tailLength = 3;
+      score = 0;
+      gameOver = false;
+      document.getElementById("score").innerText = "Score: " + score;
+    }
+
+    function startGame() {
+      initGame();
+      gameStarted = true;
+      startScreen.style.display = "none";
+      playAgainButton.style.display = "none";
+      drawGame();
+    }
+
+    document.addEventListener("keydown", function (e) {
+      if (!gameStarted) return;
+      switch (e.key) {
+        case "ArrowUp":
+        case "w":
+          if (velocityY !== 1) {
+            velocityX = 0;
+            velocityY = -1;
+          }
+          break;
+        case "ArrowDown":
+        case "s":
+          if (velocityY !== -1) {
+            velocityX = 0;
+            velocityY = 1;
+          }
+          break;
+        case "ArrowLeft":
+        case "a":
+          if (velocityX !== 1) {
+            velocityX = -1;
+            velocityY = 0;
+          }
+          break;
+        case "ArrowRight":
+        case "d":
+          if (velocityX !== -1) {
+            velocityX = 1;
+            velocityY = 0;
+          }
+          break;
+      }
+    });
+
+    startButton.addEventListener("click", startGame);
+    playAgainButton.addEventListener("click", startGame);
+
+    function drawGame() {
+      if (!gameStarted) return;
+
+      if (gameOver) {
+        ctx.fillStyle = "#f00";
+        ctx.font = "24px 'Press Start 2P'";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 15);
+        ctx.font = "16px 'Press Start 2P'";
+        ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 25);
+        playAgainButton.style.display = "block";
+        return;
+      }
+
+      x += velocityX;
+      y += velocityY;
+
+      if (x < 0 || x >= tileCountX || y < 0 || y >= tileCountY) {
+        gameOver = true;
+      }
+
+      for (let i = 0; i < tail.length; i++) {
+        if (tail[i].x === x && tail[i].y === y) {
+          gameOver = true;
+        }
+      }
+
+      tail.unshift({ x, y });
+      while (tail.length > tailLength) {
+        tail.pop();
+      }
+
+      if (x === fruitX && y === fruitY) {
+        tailLength++;
+        score += 10;
+        fruitX = Math.floor(Math.random() * tileCountX);
+        fruitY = Math.floor(Math.random() * tileCountY);
+        document.getElementById("score").innerText = "Score: " + score;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Fruit
+      ctx.fillStyle = "#f00";
+      ctx.beginPath();
+      ctx.arc(
+        fruitX * gridSize + gridSize / 2,
+        fruitY * gridSize + gridSize / 2,
+        gridSize / 2 - 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.fillStyle = "#0a0";
+      ctx.fillRect(
+        fruitX * gridSize + gridSize / 2 - 2,
+        fruitY * gridSize - 2,
+        4,
+        6
+      );
+
+      // Snake
+      for (let i = 0; i < tail.length; i++) {
+        const segment = tail[i];
+
+        if (i === 0) {
+          ctx.fillStyle = "#0a0";
+          ctx.beginPath();
+          ctx.arc(
+            segment.x * gridSize + gridSize / 2,
+            segment.y * gridSize + gridSize / 2,
+            gridSize / 2 - 1,
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+
+          ctx.fillStyle = "#000";
+          if (velocityX === 1) {
+            ctx.fillRect(segment.x * gridSize + 12, segment.y * gridSize + 5, 4, 4);
+            ctx.fillRect(segment.x * gridSize + 12, segment.y * gridSize + 12, 4, 4);
+          } else if (velocityX === -1) {
+            ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + 5, 4, 4);
+            ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + 12, 4, 4);
+          } else if (velocityY === -1) {
+            ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + 5, 4, 4);
+            ctx.fillRect(segment.x * gridSize + 12, segment.y * gridSize + 5, 4, 4);
+          } else {
+            ctx.fillRect(segment.x * gridSize + 5, segment.y * gridSize + 12, 4, 4);
+            ctx.fillRect(segment.x * gridSize + 12, segment.y * gridSize + 12, 4, 4);
+          }
+        } else {
+          const colorIntensity = 150 - Math.min(50, i * 2);
+          ctx.fillStyle = `rgb(0, ${colorIntensity}, 0)`;
+          ctx.fillRect(
+            segment.x * gridSize + 2,
+            segment.y * gridSize + 2,
+            gridSize - 4,
+            gridSize - 4
+          );
+        }
+      }
+
+      setTimeout(drawGame, 120);
+    }
+
+    initGame();
+  </script>
+</body>
+</html>

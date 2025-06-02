@@ -4,24 +4,103 @@
   <meta charset="UTF-8" />
   <title>Roll the Dice</title>
   <link rel="stylesheet" href="../style.css" />
+  <style>
+    .center-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+
+    #output {
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dice {
+      font-size: 10rem;
+      margin-top: 0rem;      /* reduced from 2rem */
+      margin-bottom: 0rem;   /* reduced from 2rem */
+      height: 10rem;
+      line-height: 6rem;
+      display: inline-block;
+    }
+
+    #result-text {
+      font-size: 1.5rem;
+      margin-top: 0rem;
+      min-height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
-<body class="center-screen"></body>
+
 <body>
-  <h2>🎲 Roll the Dice 🎲</h2>
-  <button onclick="roll()">Roll</button>
-  <p id="dice"></p>
+  <a href="../index.html" class="back-home">⬅ Go Back Home</a>
+
+  <main class="center-screen">
+    <h2>🎲 Roll the Dice 🎲</h2>
+    <button onclick="roll()">Roll</button>
+
+    <!-- Hidden container for dice + result -->
+    <div id="output">
+      <div id="dice" class="dice"></div>
+      <p id="result-text"></p>
+    </div>
+  </main>
 
   <script>
     function roll() {
-      const result = Math.floor(Math.random() * 6) + 1;
-      document.getElementById("dice").textContent = `🎲 You rolled a ${result}`;
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 },
-      });
-    }
-  </script>
+      const output = document.getElementById("output");
+      const diceDisplay = document.getElementById("dice");
+      const resultText = document.getElementById("result-text");
+      const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+      output.style.display = "flex"; // Show dice + result on first roll
+      resultText.textContent = "Rolling";
+
+      let dotCount = 0;
+
+    // Dots: every 300ms
+    const dotInterval = setInterval(() => {
+      dotCount = (dotCount + 1) % 4;
+      resultText.textContent = "Rolling" + ".".repeat(dotCount);
+    }, 300);
+
+    // Dice face: every 100ms
+    let faceSteps = 0;
+    const faceInterval = setInterval(() => {
+      const randomFace = diceFaces[Math.floor(Math.random() * 6)];
+      diceDisplay.textContent = randomFace;
+      faceSteps++;
+
+      if (faceSteps >= 24) { // Runs ~2.4 seconds
+        clearInterval(faceInterval);
+        clearInterval(dotInterval); // ✅ Now they stop together
+
+        const finalRoll = Math.floor(Math.random() * 6);
+        diceDisplay.textContent = diceFaces[finalRoll];
+        resultText.textContent = `You rolled a ${finalRoll + 1}`;
+
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.6 },
+        });
+      }
+    }, 150);
+  }
+</script>
 
   <!-- 🎉 Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>

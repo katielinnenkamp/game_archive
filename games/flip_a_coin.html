@@ -4,24 +4,69 @@
   <meta charset="UTF-8" />
   <title>Flip a Coin</title>
   <link rel="stylesheet" href="../style.css" />
+  <style>
+    .coin {
+      width: 100px;
+      height: 100px;
+      margin: 20px auto;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ccc, #888);
+      display: none;
+      animation: spin 1.5s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotateY(0deg); }
+      to { transform: rotateY(360deg); }
+    }
+
+    #result {
+      margin-top: 1rem;
+      font-size: 1.5rem;
+    }
+  </style>
 </head>
-<body class="center-screen"></body>
-<body>
+<body class="center-screen">
+  <a href="../index.html" class="back-home">⬅ Go Back Home</a>
   <h2>🪙 Flip a Coin 🪙</h2>
-  <button onclick="flip()">Flip</button>
+  <button id="flip-button">Flip</button>
+
+  <div id="coin" class="coin"></div>
+
   <p id="result"></p>
 
   <script>
-    function flip() {
-      const result = Math.random() < 0.5 ? "Heads 🧠" : "Tails 🐍";
-      document.getElementById("result").textContent = result;
+    document.getElementById("flip-button").addEventListener("click", flip);
 
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 },
-      });
-    }
+    function flip() {
+      const resultElement = document.getElementById("result");
+      const coinElement = document.getElementById("coin");
+
+      let dotCount = 0;
+      let round = 0;
+      resultElement.textContent = "Flipping";
+      coinElement.style.display = "block";
+
+      const dots = setInterval(() => {
+        dotCount = (dotCount + 1) % 4;
+        resultElement.textContent = "Flipping" + ".".repeat(dotCount);
+        round++;
+
+        if (round >= 12) {
+          clearInterval(dots);
+          coinElement.style.display = "none";
+
+          const result = Math.random() < 0.5 ? "Heads 🧠" : "Tails 🐍";
+          resultElement.textContent = result;
+
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.6 },
+        });
+      }
+    }, 300);
+  }
   </script>
 
   <!-- 🎉 Confetti -->

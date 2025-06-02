@@ -4,51 +4,158 @@
     <meta charset="UTF-8" />
     <title>Rock Paper Scissors</title>
     <link rel="stylesheet" href="../style.css" />
+    <style>
+      .center-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      }
+      
+      .showdown {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin-top: 2rem;
+        min-height: 120px;
+        position: relative;
+        gap: 60px;
+      }
+
+      .choice {
+        opacity: 0;
+        transform: translateX(0);
+        transition: all 0.6s ease-in-out;
+        position: relative;
+      }
+
+      .user-slide {
+        transform: translateX(-200%);
+      }
+
+      .user-slide.active {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .computer-slide {
+        transform: translateX(200%);
+      }
+
+      .computer-slide.active {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      #vs-text {
+        margin: 0 20px;
+        font-size: 2rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+        width: 80px;
+        text-align: center;
+      }
+
+      #result {
+        font-size: 1.2rem;
+        margin-top: 1rem;
+      }
+    </style>
   </head>
-  <body class="center-screen"></body>
   <body>
+    <a href="../index.html" class="back-home">⬅ Go Back Home</a>
+
+    <main class="center-screen">
     <h2>✊ Rock Paper Scissors ✊</h2>
     <p>Choose:</p>
     <button onclick="play(0)">🪨 Rock</button>
     <button onclick="play(1)">📄 Paper</button>
     <button onclick="play(2)">✂️ Scissors</button>
-    <p id="result"></p>
+    <div class="showdown">
+    <div id="user-emoji" class="choice user-slide"></div>
+    <div id="vs-text">VS</div>
+    <div id="computer-emoji" class="choice computer-slide"></div>
+  </div>
 
-    <script>
-      const options = ["Rock", "Paper", "Scissors"];
+  <p id="result"></p>
 
-      function play(userChoice) {
-        const computerChoice = Math.floor(Math.random() * 3);
-        let resultText = `You chose: ${options[userChoice]}<br>Computer chose: ${options[computerChoice]}<br>`;
+  <script>
+    const options = ["🪨", "📄", "✂️"];
+    const labels = ["Rock", "Paper", "Scissors"];
 
-        if (userChoice === computerChoice) {
-          resultText += "🤝 It's a tie! Stop copying me!";
-        } else if (
-          (userChoice === 0 && computerChoice === 2) ||
-          (userChoice === 1 && computerChoice === 0) ||
-          (userChoice === 2 && computerChoice === 1)
-        ) {
-          resultText += "🎉 You win! Congrats... Did you cheat? Be honest! 🤨";
-        } else {
-          resultText += "💀 You lose. That was embarrassing. I hope no one saw that.";
-        }
+    function play(userChoice) {
+      const computerChoice = Math.floor(Math.random() * 3);
 
-        document.getElementById("result").innerHTML = resultText;
-        if (resultText.includes("win")) {
-          confetti({
-            particleCount: 200,
-            spread: 100,
-            origin: { y: 0.6 },
-          });
-        } else if (resultText.includes("tie")) {
-          confetti({
-            particleCount: 200,
-            spread: 100,
-            origin: { y: 0.6 },
-          });
-        }
+      const userEmoji = document.getElementById("user-emoji");
+      const computerEmoji = document.getElementById("computer-emoji");
+      const vsText = document.getElementById("vs-text");
+      const resultEl = document.getElementById("result");
+
+      // Reset animations
+      userEmoji.classList.remove("active");
+      computerEmoji.classList.remove("active");
+      resultEl.innerHTML = "";
+      vsText.textContent = "VS";
+      vsText.style.opacity = 1;
+
+      resultEl.innerHTML = `You chose: ${labels[userChoice]}`;
+
+      // Set emojis
+      userEmoji.textContent = options[userChoice];
+      userEmoji.classList.add("active");
+
+      computerEmoji.textContent = options[computerChoice];
+
+      // Animate "vs..."
+      let dots = 0;
+      let vsSteps = 0;
+
+      vsText.textContent = "VS";
+
+      const vsInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        vsText.textContent = "VS" + ".".repeat(dots);
+        vsSteps++;
+        if (vsSteps >= 12) {
+          clearInterval(vsInterval);
+          vsText.textContent = "VS";
+
+          // show the computer's emoji
+          computerEmoji.classList.add("active");
+
+          setTimeout(() => {
+          let resultText = `<br>Computer chose: ${labels[computerChoice]}<br>`;
+
+          if (userChoice === computerChoice) {
+            resultText += "🤝 It's a tie!";
+          } else if (
+            (userChoice === 0 && computerChoice === 2) ||
+            (userChoice === 1 && computerChoice === 0) ||
+            (userChoice === 2 && computerChoice === 1)
+          ) {
+            resultText += "🎉 You win!";
+          } else {
+            resultText += "💀 You lose.";
+          }
+
+          resultEl.innerHTML += resultText;
+
+          // Confetti if win or tie
+          if (resultText.includes("win") || resultText.includes("tie")) {
+            confetti({
+              particleCount: 200,
+              spread: 100,
+              origin: { y: 0.6 },
+            });
+          }
+        }, 600); // delay matches the emoji's CSS transition
       }
-    </script>
+    }, 300);
+  }
+  </script>
 
     <!-- 🎉 Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
