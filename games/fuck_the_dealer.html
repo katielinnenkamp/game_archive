@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fuck the Dealer</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .center-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .card-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin: 20px auto 0;
+    }
+    .card-box-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .card-box {
+      width: 60px;
+      height: 90px;
+      border: 2px solid black;
+      background: white;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-family: 'Press Start 2P', monospace;
+      border-radius: 8px;
+    }
+    .card-box.red {
+      color: red;
+    }
+    .card-box.black {
+      color: black;
+    }
+    .card-box.crossed {
+      background-color: #ff0000aa;
+      text-decoration: line-through;
+      color: black;
+    }
+    .card-label {
+      visibility: hidden;
+    }
+    .card-count {
+      font-size: 0.9rem;
+      margin-top: 4px;
+      font-family: 'Press Start 2P', monospace;
+      color: black;
+    }
+    input {
+      padding: 0.5rem;
+      font-family: 'Press Start 2P', monospace;
+      text-align: center;
+      margin: 1rem;
+    }
+    .how-to-play {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      background-color: #000000c6;
+      padding: 6px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      color: #ffffff;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .how-to-play:hover {
+      background-color: #00000083;
+    }
+    .back-to-start {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      background-color: #000000c6;
+      padding: 6px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      color: #ffffff;
+      font-family: 'Press Start 2P', monospace;
+    }
+    .back-to-start:hover {
+      background-color: #00000083;
+    }
+    .rules-box {
+      background-color: #deffe0;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.2);
+      max-width: 600px;
+      width: 90%;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+    #confetti-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+    }
+  </style>
+</head>
+<body class="center-screen">
+  <a href="../index.html" class="back-home">⬅ Go Back Home</a>
+  <a class="how-to-play" onclick="showRules()">How to Play</a>
+
+  <div id="startScreen" class="center-screen">
+    <h1>🃏 Fuck the Dealer 🃏</h1>
+    <button onclick="goToPlayerCount()">Get Started</button>
+  </div>
+
+  <div id="playerCountScreen" class="hidden center-screen">
+    <h2>How many players?</h2>
+    <input type="number" id="playerCount" min="2" max="20" />
+    <div id="playerCountError" class="error-message"></div>
+    <button onclick="goToNameInput()">Next</button>
+  </div>
+
+  <div id="nameInputScreen" class="hidden center-screen">
+    <h2>Enter Player Names</h2>
+    <div id="playerInputs" class="player-inputs"></div>
+    <button onclick="startGame()">Ready to Play?</button>
+  </div>
+
+  <div id="gameScreen" class="hidden">
+    <div>
+      <h2>Dealer: <span id="dealerName"></span> (Points: <span id="dealerPoints"></span>)</h2>
+      <h3>Guesser: <span id="guesserName"></span></h3>
+    </div>
+
+    <div class="card-grid" id="cardGrid"></div>
+
+    <div>
+      <input id="guessInput" placeholder="Guess a card" />
+      <button onclick="submitGuess()">Submit Guess</button>
+    </div>
+
+    <div id="messageArea" style="margin-top: 1rem; font-family: 'Press Start 2P', monospace;"></div>
+    <button id="continueButton" class="hidden" onclick="handleContinue()" style="margin-top: 1rem;">Continue</button>
+
+    <a class="back-to-start" onclick="resetGame()">Back to Start</a>
+  </div>
+
+  <div id="rulesScreen" class="hidden center-screen">
+    <div class="rules-box">
+      <h2>How to Play</h2>
+      <p>The dealer holds a deck of cards face down, they can only look at the top card (the computer will do this).</p>
+      <p>Players take turns guessing the top card.</p>
+      <p>If they guess correctly on the first try, the card gets placed down and the dealer takes 3 drinks.</p>
+      <p>If incorrect, the dealer tells if the card is higher or lower. The player guesses again.</p>
+      <p>If correct on second try, dealer takes 1 drink.</p>
+      <p>If still wrong, the card is revealed, the dealer gets a point, and the player drinks the number they were off by.</p>
+      <p>3 wrong guesses in a row by players (dealer gets 3 points) → dealer changes.</p>
+      <p>Game ends when the deck is empty. The last dealer loses.</p>
+      <button onclick="returnToPrevious()">Back</button>
+    </div>
+  </div>
+
+  <div id="gameOverScreen" class="hidden center-screen">
+    <h2>Game Over</h2>
+    <h3 id="loserText"></h3>
+    <button onclick="resetGame()">Play Again?</button>
+  </div>
+
+  <script>
+    const faces = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    let deck = [], used = {}, players = [];
+    let dealerIndex = 0, dealerPoints = 0, currentGuesserIndex = 1;
+    let currentCard = "", firstGuessMade = false, storedFirstGuess = "", lastScreen = "startScreen";
+    let continueAction = null;
+
+    function showScreen(id) {
+      ["startScreen", "playerCountScreen", "nameInputScreen", "gameScreen", "rulesScreen"].forEach(screen => {
+        document.getElementById(screen).classList.add("hidden");
+      });
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function showRules() {
+      lastScreen = ["gameScreen", "nameInputScreen", "playerCountScreen"].find(id => !document.getElementById(id).classList.contains("hidden")) || "startScreen";
+      showScreen("rulesScreen");
+    }
+
+    function returnToPrevious() {
+      showScreen(lastScreen);
+    }
+
+    function goToPlayerCount() {
+      showScreen("playerCountScreen");
+    }
+
+    function goToNameInput() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      const errorDiv = document.getElementById("playerCountError");
+      if (!count || count < 2 || count > 20) {
+        errorDiv.innerText = "Between 2 and 20 players only.";
+        return;
+      }
+      
+      errorDiv.innerText = "";
+
+      const container = document.getElementById("playerInputs");
+      container.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const input = document.createElement("input");
+        input.placeholder = `Player ${i + 1}`;
+        container.appendChild(input);
+      }
+      showScreen("nameInputScreen");
+    }
+
+    function startGame() {
+      const inputs = document.querySelectorAll("#playerInputs input");
+      players = Array.from(inputs).map((input, i) => input.value.trim() || `Player ${i + 1}`);
+
+      dealerIndex = 0;
+      dealerPoints = 0;
+      currentGuesserIndex = (dealerIndex + 1) % players.length;
+      used = Object.fromEntries(faces.map(f => [f, 0]));
+
+      deck = [];
+      for (let i = 0; i < 4; i++) faces.forEach(f => deck.push(f));
+      deck.sort(() => Math.random() - 0.5);
+
+      buildCardGrid();
+      updateGameUI();
+      showScreen("gameScreen");
+    }
+
+    function buildCardGrid() {
+      const grid = document.getElementById("cardGrid");
+      grid.innerHTML = "";
+      faces.forEach((face, i) => {
+        const container = document.createElement("div");
+        container.className = "card-box-container";
+
+        const box = document.createElement("div");
+        box.className = `card-box ${i % 2 === 0 ? 'red' : 'black'}`;
+        box.id = `box-${face}`;
+
+        const label = document.createElement("div");
+        label.className = "card-label";
+        label.id = `label-${face}`;
+        label.innerText = face;
+        box.appendChild(label);
+
+        const count = document.createElement("div");
+        count.className = "card-count";
+        count.id = `count-${face}`;
+        count.innerText = "0";
+
+        container.appendChild(box);
+        container.appendChild(count);
+        grid.appendChild(container);
+      });
+    }
+
+    function updateGameUI() {
+      document.getElementById("dealerName").innerText = players[dealerIndex];
+      document.getElementById("dealerPoints").innerText = dealerPoints;
+      document.getElementById("guesserName").innerText = players[currentGuesserIndex];
+    }
+
+    function showMessage(msg, next) {
+      document.getElementById("messageArea").innerText = msg;
+      document.getElementById("continueButton").classList.remove("hidden");
+      continueAction = next;
+    }
+
+    function handleContinue() {
+      document.getElementById("continueButton").classList.add("hidden");
+      document.getElementById("messageArea").innerText = "";
+      if (continueAction) continueAction();
+    }
+
+    function continueGame() {
+      updateGameUI();
+      document.getElementById("guessInput").value = "";
+      document.getElementById("guessInput").placeholder = "Guess a card";
+      firstGuessMade = false;
+
+      if (deck.length === 0) {
+        showGameOver(players[dealerIndex]);
+      }
+    }
+
+    function submitGuess() {
+      const input = document.getElementById("guessInput").value.trim().toUpperCase();
+      if (!faces.includes(input)) return showMessage("Invalid card");
+
+      if (!firstGuessMade) {
+        currentCard = deck.pop();
+        if (input === currentCard) {
+          document.getElementById(`label-${currentCard}`).style.visibility = "visible";
+          used[currentCard]++;
+          document.getElementById(`count-${currentCard}`).innerText = used[currentCard];
+          if (used[currentCard] >= 4) document.getElementById(`box-${currentCard}`).classList.add("crossed");
+          showMessage(`Got it first try! Dealer (${players[dealerIndex]}) takes 3 drinks!`, () => {
+            currentGuesserIndex = (currentGuesserIndex + 1) % players.length;
+            if (currentGuesserIndex === dealerIndex) currentGuesserIndex = (currentGuesserIndex + 1) % players.length;
+            continueGame();
+          });
+        } else {
+          storedFirstGuess = input;
+          const hint = faces.indexOf(storedFirstGuess) < faces.indexOf(currentCard) ? "Higher" : "Lower";
+          document.getElementById("guessInput").value = "";
+          document.getElementById("guessInput").placeholder = `${hint}`;
+          firstGuessMade = true;
+        }
+        return;
+      }
+
+      const secondGuess = input;
+      document.getElementById(`label-${currentCard}`).style.visibility = "visible";
+
+      const drinkMessage = (secondGuess === currentCard)
+        ? `Card Guessed! Dealer (${players[dealerIndex]}) takes 1 drink!`
+        : `Wrong Guess, it was ${currentCard}! ${players[currentGuesserIndex]} takes ${Math.abs(faces.indexOf(secondGuess) - faces.indexOf(currentCard))} drink(s)!`;
+
+      showMessage(drinkMessage, () => {
+        if (secondGuess === currentCard) {
+          dealerPoints = 0;
+        } else {
+          dealerPoints++;
+        }
+
+        used[currentCard]++;
+        document.getElementById(`count-${currentCard}`).innerText = used[currentCard];
+        if (used[currentCard] >= 4) document.getElementById(`box-${currentCard}`).classList.add("crossed");
+
+        if (dealerPoints >= 3) {
+          showMessage(`${players[dealerIndex]} has 3 in a row. Deck moves to ${players[(dealerIndex + 1) % players.length]}!`, () => {
+            dealerPoints = 0;
+            dealerIndex = (dealerIndex + 1) % players.length;
+            currentGuesserIndex = (dealerIndex + 1) % players.length;
+            continueGame();
+          });
+        } else {
+          currentGuesserIndex = (currentGuesserIndex + 1) % players.length;
+          if (currentGuesserIndex === dealerIndex) currentGuesserIndex = (currentGuesserIndex + 1) % players.length;
+          continueGame();
+        }
+      });
+    }
+
+    function showGameOver(loser) {
+        document.getElementById("loserText").innerText = `The deck is empty! ${loser} is the loser!`;
+        showScreen("gameOverScreen");
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.6 },
+        });
+    }
+
+    function resetGame() {
+      document.getElementById("playerCount").value = "";
+      document.getElementById("playerInputs").innerHTML = "";
+      showScreen("startScreen");
+    }
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+</body>
+</html>
