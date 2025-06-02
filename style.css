@@ -35,7 +35,7 @@ h1, p, footer {
 
   width: 100%; /* full page width */
 
-  min-height: 80vh; /* full page height again */
+  min-height: 77vh; /* full page height again */
 
   overflow-x: hidden; /* don’t show bubble if it go out */
 
